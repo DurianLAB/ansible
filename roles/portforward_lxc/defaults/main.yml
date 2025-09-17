@@ -1,0 +1,7 @@
+---
+# defaults/main.yml
+port_forward_external_ip: "207.231.110.98"
+port_forward_container_ip: "10.245.237.88"
+port_forward_ports:
+  - port: "53"
+    protocols: ["tcp", "udp"]

@@ -1,0 +1,49 @@
+---
+- name: Ensure github-actions-runner user exists
+  ansible.builtin.user:
+    name: github-actions-runner
+    state: present
+    comment: "GitHub Actions Runner"
+    create_home: yes
+  become: yes
+
+- name: Ensure runner installation directory exists and is owned by the correct user
+  ansible.builtin.file:
+    path: "{{ runner_install_dir }}"
+    state: directory
+    mode: '0755'
+    owner: github-actions-runner
+    group: github-actions-runner
+    recurse: yes
+  become: yes
+
+- name: Download the runner tarball
+  ansible.builtin.get_url:
+    url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz"
+    dest: "{{ runner_install_dir }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz"
+  become: yes
+
+- name: Extract runner tarball
+  ansible.builtin.unarchive:
+    src: "{{ runner_install_dir }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz"
+    dest: "{{ runner_install_dir }}"
+    remote_src: yes
+  become: yes
+
+- name: Configure the runner
+  ansible.builtin.shell: |
+    ./config.sh --url {{ github_runner_url }} --token {{ github_runner_token }} --name {{ github_runner_name }} --unattended
+  args:
+    chdir: "{{ runner_install_dir }}"
+  become: yes
+  become_user: github-actions-runner
+
+- name: Start the runner service
+  ansible.builtin.shell: |
+    ./run.sh
+  args:
+    chdir: "{{ runner_install_dir }}"
+  async: 1
+  poll: 0
+  become: yes
+  become_user: github-actions-runner

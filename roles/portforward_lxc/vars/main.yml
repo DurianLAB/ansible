@@ -1,0 +1,5 @@
+---
+# vars/main.yml
+# This file can be used to override default variables if needed.
+# For example:
+# port_forward_external_ip: "192.168.1.100"

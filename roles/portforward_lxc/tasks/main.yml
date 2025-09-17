@@ -1,0 +1,38 @@
+---
+# tasks/main.yml
+
+- name: Enable IPv4 forwarding
+  ansible.builtin.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_file: /etc/sysctl.d/99-sysctl.conf
+    state: present
+    reload: yes
+
+- name: Create PREROUTING rules for port forwarding
+  ansible.builtin.iptables:
+    table: nat
+    chain: PREROUTING
+    protocol: "{{ port_rule.1 }}"
+    destination: "{{ port_forward_external_ip }}"
+    destination_port: "{{ port_rule.0.port }}"
+    jump: DNAT
+    to_destination: "{{ port_forward_container_ip }}:{{ port_rule.0.port }}"
+    state: present
+  loop: "{{ port_forward_ports | subelements('protocols') }}"
+  loop_control:
+    label: "{{ port_rule.0.port }}/{{ port_rule.1 }}"
+    loop_var: port_rule
+
+- name: Create FORWARD rules to accept forwarded traffic
+  ansible.builtin.iptables:
+    chain: FORWARD
+    protocol: "{{ port_rule.1 }}"
+    destination: "{{ port_forward_container_ip }}"
+    destination_port: "{{ port_rule.0.port }}"
+    jump: ACCEPT
+    state: present
+  loop: "{{ port_forward_ports | subelements('protocols') }}"
+  loop_control:
+    label: "{{ port_rule.0.port }}/{{ port_rule.1 }}"
+    loop_var: port_rule

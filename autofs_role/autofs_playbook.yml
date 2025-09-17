@@ -1,0 +1,5 @@
+---
+- hosts: your_target_hosts
+  become: true
+  roles:
+    - autofs_mounts

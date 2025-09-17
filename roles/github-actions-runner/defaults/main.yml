@@ -1,0 +1,15 @@
+---
+# The URL of the GitHub repository or organization
+github_runner_url: "https://github.com/DurianLAB"
+
+# A unique name for the runner. Defaults to the host's hostname.
+github_runner_name: "{{ ansible_facts.hostname }}"
+
+# The one-time authentication token. Must be provided securely.
+github_runner_token: ""
+
+# The path where the runner will be installed
+runner_install_dir: "/opt/actions-runner"
+
+# The runner version to download
+runner_version: "2.311.0"

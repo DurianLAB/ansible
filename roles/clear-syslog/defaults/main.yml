@@ -1,0 +1,6 @@
+---
+# defaults file for clear-syslog
+#
+# Default size limit for the system journal.
+# This value can be overridden in the playbook or other variable files.
+journald_max_use: "500M"

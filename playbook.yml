@@ -1,0 +1,14 @@
+---
+- name: Apply LXC port forwarding rules
+  hosts: cloud-dallas       # Replace with the hostname or IP of your host server
+  become: true                  # This is crucial as iptables requires root permissions
+  roles:
+    - portforward_lxc
+  vars:
+    port_forward_external_ip: "207.231.110.98"
+    port_forward_container_ip: "10.245.237.229"
+    port_forward_ports:
+      - port: "80"
+        protocols: ["tcp"]
+      - port: "443"
+        protocols: ["tcp"]

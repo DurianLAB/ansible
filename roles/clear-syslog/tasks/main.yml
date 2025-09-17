@@ -1,0 +1,20 @@
+---
+- name: Clear large log files
+  ansible.builtin.shell: |
+    truncate -s 0 /var/log/syslog
+    truncate -s 0 /var/log/syslog.1
+  args:
+    executable: /bin/bash
+  become: true
+  tags:
+    - clear-syslog
+
+- name: Set SystemMaxUse for journald
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/journald.conf
+    regexp: '^#?SystemMaxUse='
+    line: 'SystemMaxUse={{ journald_max_use }}'
+    state: present
+  become: true
+  notify: restart systemd-journald
+
