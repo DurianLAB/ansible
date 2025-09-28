@@ -10,7 +10,12 @@ cloud-01 ansible_user=anpham ansible_host=207.231.110.98
 
 [local]
 127.0.0.1
+
 [github-action]
 10.150.19.121
+
 [vm-dispossable]
 10.217.245.138
+
+[kube_control_node]
+kube_host ansible_host=10.217.245.138 ansible_user=ansible

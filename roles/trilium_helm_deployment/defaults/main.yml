@@ -1,0 +1,33 @@
+# defaults/main.yml
+
+# --- 1. Kubernetes/Helm Settings ---
+trilium_helm_release_name: trilium-notes
+trilium_helm_namespace: trilium
+trilium_helm_create_namespace: true
+trilium_helm_wait: true
+trilium_helm_wait_timeout: 300s
+
+# --- 2. Trilium Chart Repository Details ---
+trilium_repo_name: bjw-s-charts
+trilium_repo_url: "https://bjw-s.github.io/helm-charts/"
+trilium_chart_name: trilium-notes
+
+# --- 3. Custom Value Overrides (See Trilium chart documentation for full options) ---
+trilium_helm_values:
+  # General application settings
+  image:
+    repository: ghcr.io/triliumnext/trilium
+    tag: 0.63.1 # Recommended: Pin a specific version
+    pullPolicy: IfNotPresent
+
+  # Persistence configuration (storage for notes)
+  persistence:
+    data:
+      enabled: true
+      storageClass: "longhorn" # Change to your cluster's StorageClass
+      size: 10Gi
+
+  # Service type (e.g., LoadBalancer, NodePort, or default ClusterIP)
+  service:
+    main:
+      type: ClusterIP
