@@ -1,0 +1,21 @@
+# defaults/main.yml
+
+# --- 1. Kubernetes/Helm Settings ---
+nginx_ingress_helm_release_name: nginx-ingress
+nginx_ingress_helm_namespace: ingress-nginx
+nginx_ingress_helm_create_namespace: true
+nginx_ingress_helm_wait: true
+nginx_ingress_helm_wait_timeout: 300s
+
+# --- 2. NGINX Ingress Chart Repository Details ---
+nginx_ingress_repo_name: ingress-nginx
+nginx_ingress_repo_url: "https://kubernetes.github.io/ingress-nginx"
+nginx_ingress_chart_name: ingress-nginx
+
+# --- 3. Custom Value Overrides (See NGINX Ingress chart documentation for full options) ---
+nginx_ingress_helm_values: {}
+  # Example overrides:
+  # controller:
+  #   kind: DaemonSet
+  #   service:
+  #     type: LoadBalancer

@@ -1,0 +1,7 @@
+plugin: amazon.aws.ec2
+regions:
+  - us-east-1
+filters:
+  tag:KubernetesCluster: myproject.k8s.local
+hostnames:
+  - tag:Name
