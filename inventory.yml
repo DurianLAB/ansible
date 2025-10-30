@@ -1,7 +1,2 @@
-plugin: amazon.aws.ec2
-regions:
-  - us-east-1
-filters:
-  tag:KubernetesCluster: myproject.k8s.local
-hostnames:
-  - tag:Name
+[lxc_dev_cluster]
+k3s-dev-cluster-01 ansible_host=10.150.22.94 ansible_ssh_private_key_file=~/.ssh/id_ed25519 ansible_ssh_common_args='-o StrictHostKeyChecking=no'

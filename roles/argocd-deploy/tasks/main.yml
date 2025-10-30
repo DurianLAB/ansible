@@ -1,10 +1,39 @@
 ---
-- name: Install Helm
+- name: Add Helm GPG key
+  become: yes
+  ansible.builtin.shell: |
+    curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null
+
+- name: Add Helm repository
+  become: yes
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main
+    state: present
+
+- name: Update apt cache
+  become: yes
   ansible.builtin.apt:
-    become: yes
+    update_cache: yes
+
+- name: Install Helm
+  become: yes
+  ansible.builtin.apt:
     name: helm
     state: present
-    update_cache: yes
+
+- name: Ensure .kube directory exists
+  ansible.builtin.file:
+    path: ~/.kube
+    state: directory
+    mode: '0755'
+
+- name: Copy k3s kubeconfig
+  become: yes
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: ~/.kube/config
+    remote_src: yes
+    mode: '0600'
 
 - name: Add ArgoCD Helm repository
   kubernetes.core.helm_repository:
@@ -18,5 +47,5 @@
     release_namespace: "{{ argocd_namespace }}"
     create_namespace: true
     values: "{{ argocd_helm_values | default({}) }}"
-    version: "{{ argocd_chart_version }}"
+    chart_version: "{{ argocd_chart_version }}"
     state: present
