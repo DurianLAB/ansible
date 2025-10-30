@@ -1,0 +1,22 @@
+---
+- name: Install Helm
+  ansible.builtin.apt:
+    become: yes
+    name: helm
+    state: present
+    update_cache: yes
+
+- name: Add ArgoCD Helm repository
+  kubernetes.core.helm_repository:
+    name: argo
+    repo_url: https://argoproj.github.io/argo-helm
+
+- name: Install ArgoCD
+  kubernetes.core.helm:
+    name: "{{ argocd_release_name }}"
+    chart_ref: argo/argo-cd
+    release_namespace: "{{ argocd_namespace }}"
+    create_namespace: true
+    values: "{{ argocd_helm_values | default({}) }}"
+    version: "{{ argocd_chart_version }}"
+    state: present
