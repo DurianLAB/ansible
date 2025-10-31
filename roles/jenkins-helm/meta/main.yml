@@ -1,0 +1,22 @@
+galaxy_info:
+  author: your_name
+  description: Deploy Jenkins via Helm
+  company: your_company
+
+  license: MIT
+
+  min_ansible_version: "2.9"
+
+  platforms:
+    - name: GenericLinux
+      versions:
+        - all
+
+  galaxy_tags:
+    - kubernetes
+    - helm
+    - jenkins
+    - ci
+    - cd
+
+dependencies: []

@@ -1,0 +1,23 @@
+# defaults/main.yml
+
+# --- 1. Kubernetes/Helm Settings ---
+jenkins_helm_release_name: jenkins
+jenkins_helm_namespace: jenkins
+jenkins_helm_create_namespace: true
+jenkins_helm_wait: true
+jenkins_helm_wait_timeout: 300s
+
+# --- 2. Jenkins Chart Repository Details ---
+jenkins_repo_name: jenkins
+jenkins_repo_url: "https://charts.jenkins.io"
+jenkins_chart_name: jenkins
+
+# --- 3. Custom Value Overrides (See Jenkins chart documentation for full options) ---
+jenkins_helm_values: {}
+  # Example overrides:
+  # controller:
+  #   adminUser: admin
+  #   adminPassword: password
+  # persistence:
+  #   enabled: true
+  #   size: 8Gi
