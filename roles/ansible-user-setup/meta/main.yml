@@ -1,0 +1,21 @@
+galaxy_info:
+  author: An Pham
+  description: Create and configure an ansible user with sudo privileges
+  company: durianLAB.tech
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: GenericUNIX
+      versions:
+        - all
+    - name: GenericBSD
+      versions:
+        - all
+    - name: GenericLinux
+      versions:
+        - all
+  galaxy_tags:
+    - user
+    - sudo
+    - setup
+dependencies: []

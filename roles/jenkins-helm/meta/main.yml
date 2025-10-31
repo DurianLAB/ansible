@@ -1,22 +1,17 @@
 galaxy_info:
-  author: your_name
+  author: An Pham
   description: Deploy Jenkins via Helm
-  company: your_company
-
+  company: durianLAB.tech
   license: MIT
-
   min_ansible_version: "2.9"
-
   platforms:
     - name: GenericLinux
       versions:
         - all
-
   galaxy_tags:
     - kubernetes
     - helm
     - jenkins
     - ci
     - cd
-
 dependencies: []

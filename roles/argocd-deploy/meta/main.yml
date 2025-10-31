@@ -1,2 +1,25 @@
 ---
 # meta file for argocd-deploy
+#
+galaxy_info:
+  author: An Pham
+  description: Deploy ArgoCD to Kubernetes clusters
+  company:
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+  - name: GenericUNIX
+    versions:
+    - all
+  - name: GenericBSD
+    versions:
+    - all
+  - name: GenericLinux
+    versions:
+    - all
+  galaxy_tags:
+  - argocd
+  - kubernetes
+  - deployment
+  - gitops
+dependencies: []

@@ -1,4 +1,16 @@
-# meta/main.yml
+galaxy_info:
+  author: An Pham
+  description: Deploy Trilium notes application via Helm
+  company: durianLAB.tech
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: GenericLinux
+      versions:
+        - all
+  galaxy_tags:
+    - kubernetes
+    - helm
+    - trilium
+    - notes
 dependencies: []
-# collections:
-#   - kubernetes.core
