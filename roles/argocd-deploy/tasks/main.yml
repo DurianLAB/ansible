@@ -21,9 +21,9 @@
     name: helm
     state: present
 
-- name: Ensure .kube directory exists
+- name: Ensure .kube directory exists for ansible user
   ansible.builtin.file:
-    path: ~/.kube
+    path: /home/ansible/.kube
     state: directory
     mode: '0755'
 
@@ -31,14 +31,29 @@
   become: yes
   ansible.builtin.copy:
     src: /etc/rancher/k3s/k3s.yaml
-    dest: ~/.kube/config
+    dest: /home/ansible/.kube/config
     remote_src: yes
     mode: '0600'
+
+- name: Set ownership of kubeconfig
+  become: yes
+  ansible.builtin.file:
+    path: /home/ansible/.kube/config
+    owner: ansible
+    group: ansible
+    mode: '0600'
+
+- name: Install kubernetes Python library
+  become: yes
+  ansible.builtin.pip:
+    name: kubernetes
+    state: present
 
 - name: Add ArgoCD Helm repository
   kubernetes.core.helm_repository:
     name: argo
     repo_url: https://argoproj.github.io/argo-helm
+    kubeconfig: /home/ansible/.kube/config
 
 - name: Install ArgoCD
   kubernetes.core.helm:
@@ -49,3 +64,18 @@
     values: "{{ argocd_helm_values | default({}) }}"
     chart_version: "{{ argocd_chart_version }}"
     state: present
+    kubeconfig: /home/ansible/.kube/config
+
+- name: Verify ArgoCD is running
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: "{{ argocd_namespace }}"
+    label_selectors:
+      - app.kubernetes.io/name=argocd-server
+    kubeconfig: /home/ansible/.kube/config
+  register: argocd_pods
+
+- name: Check if ArgoCD server pod is ready
+  assert:
+    that: argocd_pods.resources | length > 0 and argocd_pods.resources[0].status.phase == 'Running'
+    fail_msg: "ArgoCD server pod is not running"
