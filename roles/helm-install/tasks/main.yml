@@ -1,0 +1,22 @@
+---
+- name: Add Helm GPG key
+  become: yes
+  ansible.builtin.shell: |
+    curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null
+
+- name: Add Helm repository
+  become: yes
+  ansible.builtin.apt_repository:
+    repo: deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main
+    state: present
+
+- name: Update apt cache
+  become: yes
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install Helm
+  become: yes
+  ansible.builtin.apt:
+    name: helm
+    state: present
