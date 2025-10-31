@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: opencode
+  description: Install MicroK8s on Linux hosts
+  license: MIT
+  min_ansible_version: 2.9
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+  dependencies: []

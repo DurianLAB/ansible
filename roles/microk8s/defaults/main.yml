@@ -1,0 +1,2 @@
+---
+microk8s_channel: stable  # You can specify 'latest', '1.28', etc.
