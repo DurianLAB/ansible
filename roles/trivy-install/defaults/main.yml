@@ -1,5 +1,17 @@
----
-trivy_version: "0.55.2"
-trivy_install_path: "/usr/local/bin"
-trivy_arch: "{{ ansible_architecture }}"
-trivy_os: "{{ ansible_system | lower }}"
+# defaults/main.yml
+
+# --- 1. Kubernetes/Helm Settings ---
+trivy_helm_release_name: trivy-operator
+trivy_helm_namespace: trivy-system
+trivy_helm_create_namespace: true
+trivy_helm_wait: true
+trivy_helm_wait_timeout: 300s
+
+# --- 2. Trivy Operator Chart Repository Details ---
+trivy_repo_name: aquasecurity
+trivy_repo_url: "https://aquasecurity.github.io/helm-charts"
+trivy_chart_name: trivy-operator
+trivy_chart_version: "0.29.0"
+
+# --- 3. Custom Value Overrides (See Trivy Operator chart documentation for full options) ---
+trivy_helm_values: {}

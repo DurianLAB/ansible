@@ -1,26 +1,41 @@
-# Trivy Install Role
+# Trivy Operator Install Role
 
-This Ansible role installs Trivy vulnerability scanner on Linux hosts.
+This Ansible role installs the Trivy Operator using Helm on Kubernetes clusters.
 
 ## Requirements
 
 - Ansible >= 2.9
-- Supported OS: Ubuntu, CentOS, RedHat
+- Kubernetes cluster access
+- Helm installed on the control node
+- `kubernetes.core` Ansible collection
 
 ## Role Variables
 
-- `trivy_version`: Trivy version to install (default: 0.55.2)
-- `trivy_install_path`: Path to install Trivy binary (default: /usr/local/bin)
-- `trivy_arch`: System architecture (default: ansible_architecture)
-- `trivy_os`: Operating system (default: ansible_system | lower)
+### Helm Settings
+- `trivy_helm_release_name`: Helm release name (default: trivy-operator)
+- `trivy_helm_namespace`: Namespace to install in (default: trivy-system)
+- `trivy_helm_create_namespace`: Create namespace if it doesn't exist (default: true)
+- `trivy_helm_wait`: Wait for deployment to complete (default: true)
+- `trivy_helm_wait_timeout`: Timeout for waiting (default: 300s)
+
+### Chart Repository
+- `trivy_repo_name`: Helm repo name (default: aquasecurity)
+- `trivy_repo_url`: Helm repo URL (default: https://aquasecurity.github.io/helm-charts)
+- `trivy_chart_name`: Chart name (default: trivy-operator)
+- `trivy_chart_version`: Chart version (default: 0.29.0)
+
+### Custom Values
+- `trivy_helm_values`: Dictionary of custom Helm values (default: {})
 
 ## Example Playbook
 
 ```yaml
-- hosts: servers
+- hosts: k8s-masters
   roles:
     - role: trivy-install
-      trivy_version: "0.55.2"
+      trivy_helm_values:
+        operator:
+          scannerReportTTL: "24h"
 ```
 
 ## License
