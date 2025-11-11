@@ -1,0 +1,34 @@
+---
+- name: Create temporary directory for Trivy download
+  tempfile:
+    state: directory
+    suffix: trivy
+  register: trivy_temp_dir
+
+- name: Set Trivy architecture mapping
+  set_fact:
+    trivy_arch_mapped: "{{ '64bit' if trivy_arch == 'x86_64' else 'ARM64' if trivy_arch == 'aarch64' else trivy_arch }}"
+
+- name: Download Trivy binary
+  get_url:
+    url: "https://github.com/aquasecurity/trivy/releases/download/v{{ trivy_version }}/trivy_{{ trivy_version }}_{{ trivy_os }}-{{ trivy_arch_mapped }}.tar.gz"
+    dest: "{{ trivy_temp_dir.path }}/trivy.tar.gz"
+    mode: '0644'
+
+- name: Unarchive Trivy binary
+  unarchive:
+    src: "{{ trivy_temp_dir.path }}/trivy.tar.gz"
+    dest: "{{ trivy_temp_dir.path }}"
+    remote_src: yes
+
+- name: Install Trivy binary
+  copy:
+    src: "{{ trivy_temp_dir.path }}/trivy"
+    dest: "{{ trivy_install_path }}/trivy"
+    mode: '0755'
+    remote_src: yes
+
+- name: Clean up temporary directory
+  file:
+    path: "{{ trivy_temp_dir.path }}"
+    state: absent

@@ -1,0 +1,5 @@
+---
+trivy_version: "0.55.2"
+trivy_install_path: "/usr/local/bin"
+trivy_arch: "{{ ansible_architecture }}"
+trivy_os: "{{ ansible_system | lower }}"

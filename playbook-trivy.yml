@@ -1,0 +1,8 @@
+---
+- name: Install Trivy
+  hosts: all
+  remote_user: ansible
+  tasks:
+    - name: Include trivy-install role
+      ansible.builtin.include_role:
+        name: trivy-install
