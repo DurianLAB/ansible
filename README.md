@@ -1,6 +1,6 @@
 # Ansible Playbooks and Roles Overview
 
-![Pull Requests](https://img.shields.io/github/issues-pr/DurianLAB/ansible)
+![Stars](https://img.shields.io/github/stars/DurianLAB/ansible) ![Forks](https://img.shields.io/github/forks/DurianLAB/ansible) ![Issues](https://img.shields.io/github/issues/DurianLAB/ansible) ![Pull Requests](https://img.shields.io/github/issues-pr/DurianLAB/ansible)
 
 ## Roles Testable with Molecule
 
