@@ -1,0 +1,17 @@
+galaxy_info:
+  author: An Pham
+  description: Deploy OpenCost via Helm
+  company: durianLAB.tech
+  license: MIT
+  min_ansible_version: "2.9"
+  platforms:
+    - name: GenericLinux
+      versions:
+        - all
+  galaxy_tags:
+    - kubernetes
+    - helm
+    - opencost
+    - cost-monitoring
+dependencies:
+  - helm-install

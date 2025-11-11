@@ -1,0 +1,22 @@
+# defaults/main.yml
+
+# --- 1. Kubernetes/Helm Settings ---
+opencost_helm_release_name: opencost
+opencost_helm_namespace: opencost
+opencost_helm_create_namespace: true
+opencost_helm_wait: true
+opencost_helm_wait_timeout: 300s
+
+# --- 2. OpenCost Chart Repository Details ---
+opencost_repo_name: opencost
+opencost_repo_url: "https://opencost.github.io/opencost-helm-chart"
+opencost_chart_name: opencost
+
+# --- 3. Custom Value Overrides (See OpenCost chart documentation for full options) ---
+opencost_helm_values: {}
+  # Example overrides:
+  # opencost:
+  #   exporter:
+  #     cloudProviderApiKey: "your-api-key"
+  # prometheus:
+  #   existingSecretName: "prometheus-secret"
