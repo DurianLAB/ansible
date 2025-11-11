@@ -1,5 +1,7 @@
 # Ansible Playbooks and Roles Overview
 
+![Pull Requests](https://img.shields.io/github/issues-pr/DurianLAB/ansible)
+
 ## Roles Testable with Molecule
 
 | Role                  | Molecule Testable | Used in Playbooks |
