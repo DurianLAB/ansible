@@ -1,0 +1,50 @@
+
+PLAY [Install Trivy Operator] **************************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [k3s-dev-cluster-01]
+
+TASK [Include helm-install role] ***********************************************
+
+TASK [helm-install : Add Helm GPG key] *****************************************
+changed: [k3s-dev-cluster-01]
+
+TASK [helm-install : Add Helm repository] **************************************
+ok: [k3s-dev-cluster-01]
+
+TASK [helm-install : Update apt cache] *****************************************
+changed: [k3s-dev-cluster-01]
+
+TASK [helm-install : Install Helm] *********************************************
+ok: [k3s-dev-cluster-01]
+
+TASK [Include trivy-install role] **********************************************
+
+TASK [trivy-install : 1. Install kubernetes.core collection if not present] ****
+ok: [k3s-dev-cluster-01 -> localhost]
+
+TASK [trivy-install : 2. Ensure the Helm chart repository is configured] *******
+ok: [k3s-dev-cluster-01] => {
+    "msg": "Ensure you have the 'kubernetes.core' collection installed: ansible-galaxy collection install kubernetes.core"
+}
+
+TASK [trivy-install : 3. Add the Trivy Operator Helm Repository] ***************
+ok: [k3s-dev-cluster-01]
+
+TASK [trivy-install : 4. Deploy or Upgrade the Trivy Operator Helm Chart] ******
+ok: [k3s-dev-cluster-01]
+
+TASK [trivy-install : 5. Explicitly create Namespace (Recommended for clearer k8s task reporting)] ***
+ok: [k3s-dev-cluster-01]
+
+TASK [trivy-install : 6. Verify Trivy Operator deployment by checking pods] ****
+ok: [k3s-dev-cluster-01]
+
+TASK [trivy-install : 7. Display Trivy Operator pod status] ********************
+ok: [k3s-dev-cluster-01] => {
+    "msg": "Trivy Operator pods: ['Running']"
+}
+
+PLAY RECAP *********************************************************************
+k3s-dev-cluster-01         : ok=12   changed=2    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+

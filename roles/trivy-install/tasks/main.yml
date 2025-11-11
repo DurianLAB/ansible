@@ -1,0 +1,52 @@
+# tasks/main.yml
+
+- name: 1. Install kubernetes.core collection if not present
+  ansible.builtin.command: ansible-galaxy collection install kubernetes.core
+  register: install_result
+  changed_when: "'already installed' not in install_result.stdout"
+  failed_when: install_result.rc != 0 and 'already installed' not in install_result.stdout
+  delegate_to: localhost
+
+- name: 2. Ensure the Helm chart repository is configured
+  ansible.builtin.debug:
+    msg: "Ensure you have the 'kubernetes.core' collection installed: ansible-galaxy collection install kubernetes.core"
+
+- name: 3. Add the Trivy Operator Helm Repository
+  kubernetes.core.helm_repository:
+    name: "{{ trivy_repo_name }}"
+    repo_url: "{{ trivy_repo_url }}"
+    state: present
+
+- name: 4. Deploy or Upgrade the Trivy Operator Helm Chart
+  kubernetes.core.helm:
+    name: "{{ trivy_helm_release_name }}"
+    chart_ref: "{{ trivy_repo_name }}/{{ trivy_chart_name }}"
+    release_namespace: "{{ trivy_helm_namespace }}"
+    release_state: present
+    create_namespace: "{{ trivy_helm_create_namespace }}"
+    # Use default({}) to ensure 'values' is an empty dict if not defined, avoiding errors
+    values: "{{ trivy_helm_values | default({}) }}"
+    wait: "{{ trivy_helm_wait }}"
+    wait_timeout: "{{ trivy_helm_wait_timeout }}"
+    chart_version: "{{ trivy_chart_version }}"
+
+- name: 5. Explicitly create Namespace (Recommended for clearer k8s task reporting)
+  kubernetes.core.k8s:
+    name: "{{ trivy_helm_namespace }}"
+    api_version: v1
+    kind: Namespace
+    state: present
+  when: trivy_helm_create_namespace
+  tags: verify_namespace
+
+- name: 6. Verify Trivy Operator deployment by checking pods
+  kubernetes.core.k8s_info:
+    kind: Pod
+    namespace: "{{ trivy_helm_namespace }}"
+    label_selectors:
+      - app.kubernetes.io/name=trivy-operator
+  register: trivy_pods
+
+- name: 7. Display Trivy Operator pod status
+  ansible.builtin.debug:
+    msg: "Trivy Operator pods: {{ trivy_pods.resources | map(attribute='status.phase') | list }}"
