@@ -1,0 +1,5 @@
+---
+- hosts: lxc_dev_cluster
+  remote_user: ansible
+  roles:
+    - vcluster-helm

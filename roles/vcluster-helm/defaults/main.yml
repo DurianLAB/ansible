@@ -1,0 +1,26 @@
+# defaults/main.yml
+
+# --- 1. Kubernetes/Helm Settings ---
+vcluster_helm_release_name: vcluster
+vcluster_helm_namespace: vcluster
+vcluster_helm_create_namespace: true
+vcluster_helm_wait: true
+vcluster_helm_wait_timeout: 300s
+
+# --- 2. vCluster Chart Repository Details ---
+vcluster_repo_name: loft-sh
+vcluster_repo_url: "https://charts.loft.sh"
+vcluster_chart_name: vcluster
+
+# --- 3. Custom Value Overrides (See vCluster chart documentation for full options) ---
+vcluster_helm_values: {}
+  # Example overrides:
+  # vcluster:
+  #   image: loftsh/vcluster:latest
+  #   resources:
+  #     requests:
+  #       memory: 128Mi
+  #       cpu: 100m
+  #     limits:
+  #       memory: 256Mi
+  #       cpu: 200m
