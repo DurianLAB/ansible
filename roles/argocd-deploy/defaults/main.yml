@@ -2,4 +2,8 @@
 argocd_release_name: argocd
 argocd_namespace: argocd
 argocd_chart_version: 5.51.0
-# argocd_helm_values: {}
+argocd_helm_values:
+  server:
+    service:
+      type: NodePort
+      nodePort: 30080

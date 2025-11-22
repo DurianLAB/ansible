@@ -79,3 +79,15 @@
   assert:
     that: argocd_pods.resources | length > 0 and argocd_pods.resources[0].status.phase == 'Running'
     fail_msg: "ArgoCD server pod is not running"
+
+- name: Get ArgoCD server service node port
+  kubernetes.core.k8s_info:
+    kind: Service
+    name: argocd-server
+    namespace: "{{ argocd_namespace }}"
+    kubeconfig: /home/ansible/.kube/config
+  register: argocd_service
+
+- name: Display ArgoCD access information
+  ansible.builtin.debug:
+    msg: "ArgoCD is accessible at https://<node-ip>:{{ argocd_service.resources[0].spec.ports | selectattr('name', 'equalto', 'https') | map(attribute='nodePort') | first }}"
