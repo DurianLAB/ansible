@@ -17,6 +17,15 @@
     repo_url: "{{ jenkins_repo_url }}"
     state: present
 
+- name: 4a. Remove Helm lock if present
+  kubernetes.core.k8s:
+    name: "{{ jenkins_helm_release_name }}.v1.lock"
+    api_version: v1
+    kind: ConfigMap
+    namespace: "{{ jenkins_helm_namespace }}"
+    state: absent
+  ignore_errors: true
+
 - name: 4. Deploy or Upgrade the Jenkins Helm Chart
   kubernetes.core.helm:
     name: "{{ jenkins_helm_release_name }}"

@@ -1,3 +1,4 @@
- ./playbook-jenkins-anpham-me.yml
-.playbook-jenkins-anpham-me.yml
+*.swp
+log*.txt
+playbook-jenkins-anpham-me.yml
 playbook-jenkins-anpham.yaml
