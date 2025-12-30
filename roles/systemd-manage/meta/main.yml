@@ -1,0 +1,20 @@
+galaxy_info:
+  role_name: systemd-manage
+  author: opencode
+  description: A role to manage systemd services
+  license: MIT
+  min_ansible_version: 2.1
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: CentOS
+      versions:
+        - all
+    - name: RedHat
+      versions:
+        - all
+dependencies: []

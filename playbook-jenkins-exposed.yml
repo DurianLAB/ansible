@@ -1,0 +1,31 @@
+---
+- hosts: lxc_dev_cluster
+  vars:
+    jenkins_helm_wait_timeout: 600s
+    jenkins_helm_values:
+      controller:
+        admin:
+          username: admin
+          password: aB3dE5fG7hI9
+        skipFirstTimeRun: true
+        installPlugins:
+          - git
+          - workflow-aggregator
+          - github
+          - docker-plugin
+          - kubernetes
+          - blueocean
+          - credentials-binding
+          - matrix-auth
+          - ssh-credentials
+        resources:
+          requests:
+            memory: 512Mi
+            cpu: 200m
+          limits:
+            memory: 1Gi
+            cpu: 500m
+        serviceType: NodePort
+        nodePort: 32000
+  roles:
+    - jenkins-helm

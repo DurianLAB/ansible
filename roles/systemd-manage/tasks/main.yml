@@ -1,0 +1,11 @@
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+  when: systemd_daemon_reload | bool
+
+- name: Manage systemd service
+  systemd:
+    name: "{{ systemd_service_name }}"
+    state: "{{ systemd_state }}"
+    enabled: "{{ systemd_enabled }}"
+  when: systemd_service_name != ""
