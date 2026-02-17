@@ -1,0 +1,58 @@
+---
+- name: Gather Node Information
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Display basic system information
+      ansible.builtin.debug:
+        msg:
+          - "Hostname: {{ ansible_hostname }}"
+          - "OS: {{ ansible_distribution }} {{ ansible_distribution_version }}"
+          - "Kernel: {{ ansible_kernel }}"
+          - "Architecture: {{ ansible_architecture }}"
+
+    - name: Display CPU information
+      ansible.builtin.debug:
+        msg:
+          - "CPU Count: {{ ansible_processor_count }}"
+          - "CPU Cores: {{ ansible_processor_cores }}"
+          - "CPU Threads: {{ ansible_processor_threads_per_core }}"
+          - "CPU Model: {{ ansible_processor[0] | default('N/A') }}"
+
+    - name: Display memory information
+      ansible.builtin.debug:
+        msg:
+          - "Total Memory: {{ ansible_memtotal_mb }} MB ({{ (ansible_memtotal_mb / 1024) | round(2) }} GB)"
+          - "Free Memory: {{ ansible_memfree_mb }} MB"
+          - "Used Memory: {{ ansible_memtotal_mb - ansible_memfree_mb }} MB"
+
+    - name: Display disk information
+      ansible.builtin.debug:
+        msg:
+          - "Mount Point: {{ item.mount }}"
+          - "  Total: {{ (item.size_total / 1024 / 1024 / 1024) | round(2) }} GB"
+          - "  Available: {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }} GB"
+          - "  Used: {{ ((item.size_total - item.size_available) / 1024 / 1024 / 1024) | round(2) }} GB"
+          - "  Filesystem: {{ item.fstype }}"
+      loop: "{{ ansible_mounts }}"
+      when: ansible_mounts is defined
+
+    - name: Display network information
+      ansible.builtin.debug:
+        msg:
+          - "Default IPv4: {{ ansible_default_ipv4.address | default('N/A') }}"
+          - "Default IPv6: {{ ansible_default_ipv6.address | default('N/A') }}"
+
+    - name: Display uptime
+      ansible.builtin.debug:
+        msg: "Uptime: {{ ansible_uptime_seconds // 86400 }} days, {{ (ansible_uptime_seconds % 86400) // 3600 }} hours, {{ (ansible_uptime_seconds % 3600) // 60 }} minutes"
+      when: ansible_uptime_seconds is defined
+
+    - name: Gather additional package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Display package count
+      ansible.builtin.debug:
+        msg: "Installed packages: {{ packages | length }}"
+      when: packages is defined
