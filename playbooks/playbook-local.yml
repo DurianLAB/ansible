@@ -1,0 +1,8 @@
+---
+- name: Run tasks to clear syslog
+  hosts: local
+  become: yes
+  roles:
+    - clear-syslog
+    - docker-install
+

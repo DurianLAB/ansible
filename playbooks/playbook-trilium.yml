@@ -1,0 +1,17 @@
+---
+- name: Test Trilium Helm Deployment Role
+  # The host where you have the Helm binary and KUBECONFIG access
+  hosts: kube_control_node
+  gather_facts: no
+
+  tasks:
+    - name: Run Trilium Helm Deployment Role
+      ansible.builtin.include_role:
+        name: trilium_helm_deployment
+      # Use the 'vars' block here to override any settings in defaults/main.yml, e.g.:
+      # vars:
+      #   trilium_helm_namespace: production-trilium
+      #   trilium_helm_values:
+      #     service:
+      #       main:
+      #         type: LoadBalancer

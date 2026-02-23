@@ -1,0 +1,4 @@
+---
+- hosts: lxc_dev_cluster
+  roles:
+    - opencost-helm
