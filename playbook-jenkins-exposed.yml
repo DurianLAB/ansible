@@ -4,10 +4,6 @@
     jenkins_helm_wait_timeout: 600s
     jenkins_helm_values:
       controller:
-        admin:
-          username: admin
-          password: aB3dE5fG7hI9
-        skipFirstTimeRun: true
         installPlugins:
           - git
           - workflow-aggregator
@@ -18,14 +14,34 @@
           - credentials-binding
           - matrix-auth
           - ssh-credentials
+          - configuration-as-code
         resources:
           requests:
-            memory: 512Mi
-            cpu: 200m
-          limits:
             memory: 1Gi
             cpu: 500m
+          limits:
+            memory: 1.5Gi
+            cpu: 2000m
         serviceType: NodePort
         nodePort: 32000
+        persistence:
+          enabled: true
+          size: 8Gi
+        JCasC:
+          enabled: true
+          defaultConfig: false
+          configScripts:
+            jenkins-security: |
+              jenkins:
+                securityRealm:
+                  local:
+                    allowsSignup: false
+                    users:
+                      - id: "admin"
+                        password: "aB3dE5fG7hI9"
+                authorizationStrategy:
+                  loggedInUsersCanDoAnything:
+                    allowAnonymousRead: false
   roles:
+    - helm-install
     - jenkins-helm

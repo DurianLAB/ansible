@@ -16,6 +16,25 @@
     name: "{{ jenkins_repo_name }}"
     repo_url: "{{ jenkins_repo_url }}"
     state: present
+    kubeconfig: "{{ jenkins_kubeconfig }}"
+
+- name: 3b. Uninstall existing release if exists
+  kubernetes.core.helm:
+    name: "{{ jenkins_helm_release_name }}"
+    release_namespace: "{{ jenkins_helm_namespace }}"
+    state: absent
+    kubeconfig: "{{ jenkins_kubeconfig }}"
+  ignore_errors: true
+
+- name: 3c. Remove PVC to start fresh
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: PersistentVolumeClaim
+    name: "{{ jenkins_helm_release_name }}"
+    namespace: "{{ jenkins_helm_namespace }}"
+    state: absent
+    kubeconfig: "{{ jenkins_kubeconfig }}"
+  ignore_errors: true
 
 - name: 4a. Remove Helm lock if present
   kubernetes.core.k8s:
@@ -24,6 +43,7 @@
     kind: ConfigMap
     namespace: "{{ jenkins_helm_namespace }}"
     state: absent
+    kubeconfig: "{{ jenkins_kubeconfig }}"
   ignore_errors: true
 
 - name: 4. Deploy or Upgrade the Jenkins Helm Chart
@@ -33,17 +53,19 @@
     release_namespace: "{{ jenkins_helm_namespace }}"
     release_state: present
     create_namespace: "{{ jenkins_helm_create_namespace }}"
-    # Use default({}) to ensure 'values' is an empty dict if not defined, avoiding errors
     values: "{{ jenkins_helm_values | default({}) }}"
     wait: "{{ jenkins_helm_wait }}"
     wait_timeout: "{{ jenkins_helm_wait_timeout }}"
+    kubeconfig: "{{ jenkins_kubeconfig }}"
+    force: yes
 
-- name: 5. Explicitly create Namespace (Recommended for clearer k8s task reporting)
+- name: 5. Explicitly create Namespace
   kubernetes.core.k8s:
     name: "{{ jenkins_helm_namespace }}"
     api_version: v1
     kind: Namespace
     state: present
+    kubeconfig: "{{ jenkins_kubeconfig }}"
   when: jenkins_helm_create_namespace
   tags: verify_namespace
 
@@ -53,8 +75,58 @@
     namespace: "{{ jenkins_helm_namespace }}"
     label_selectors:
       - app.kubernetes.io/name=jenkins
+    kubeconfig: "{{ jenkins_kubeconfig }}"
   register: jenkins_pods
 
 - name: 7. Display Jenkins pod status
   ansible.builtin.debug:
     msg: "Jenkins pods: {{ jenkins_pods.resources | map(attribute='status.phase') | list }}"
+
+- name: 8. Get Jenkins service info
+  kubernetes.core.k8s_info:
+    kind: Service
+    name: "{{ jenkins_helm_release_name }}"
+    namespace: "{{ jenkins_helm_namespace }}"
+    kubeconfig: "{{ jenkins_kubeconfig }}"
+  register: jenkins_service
+
+- name: 9. Display Jenkins service port
+  ansible.builtin.debug:
+    msg: "Jenkins - Host: {{ ansible_host }}, clusterIP: {{ jenkins_service.resources[0].spec.clusterIP }}, type: {{ jenkins_service.resources[0].spec.type }}, port: {{ jenkins_service.resources[0].spec.ports[0].port }}{{ ', nodePort: ' + (jenkins_service.resources[0].spec.ports[0].nodePort | string) if jenkins_service.resources[0].spec.ports[0].nodePort is defined else '' }}"
+
+- name: 9b. Debug - Check JCasC ConfigMap
+  kubernetes.core.k8s_info:
+    kind: ConfigMap
+    namespace: "{{ jenkins_helm_namespace }}"
+    name: "jenkins-jenkins-config"
+    kubeconfig: "{{ jenkins_kubeconfig }}"
+  register: jcasc_configmap
+  ignore_errors: true
+
+- name: 9c. Display JCasC config
+  ansible.builtin.debug:
+    var: jcasc_configmap.resources[0].data['jenkins-config.yaml'] | default('NOT FOUND')
+  when: jcasc_configmap.resources | length > 0
+
+- name: 9d. Debug - Check Jenkins admin secret
+  kubernetes.core.k8s_info:
+    kind: Secret
+    namespace: "{{ jenkins_helm_namespace }}"
+    name: "{{ jenkins_helm_release_name }}"
+    kubeconfig: "{{ jenkins_kubeconfig }}"
+  register: jenkins_secret
+  ignore_errors: true
+
+- name: 9e. Display admin username
+  ansible.builtin.debug:
+    msg: "Admin secret keys: {{ jenkins_secret.resources[0].data.keys() if jenkins_secret.resources | length > 0 else 'NOT FOUND' }}"
+  ignore_errors: true
+
+- name: 10. Restart Jenkins to apply JCasC
+  kubernetes.core.k8s:
+    kind: Pod
+    name: "{{ jenkins_pods.resources[0].metadata.name }}"
+    namespace: "{{ jenkins_helm_namespace }}"
+    state: absent
+    kubeconfig: "{{ jenkins_kubeconfig }}"
+  when: jenkins_pods.resources | length > 0
