@@ -1,0 +1,58 @@
+---
+- name: Gather Node Information
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: Display basic system information
+      ansible.builtin.debug:
+        msg:
+          - "Hostname: {{ ansible_facts['hostname'] }}"
+          - "OS: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+          - "Kernel: {{ ansible_facts['kernel'] }}"
+          - "Architecture: {{ ansible_facts['architecture'] }}"
+
+    - name: Display CPU information
+      ansible.builtin.debug:
+        msg:
+          - "CPU Count: {{ ansible_facts['processor_count'] | default('N/A') }}"
+          - "CPU Cores: {{ ansible_facts['processor_cores'] | default('N/A') }}"
+          - "CPU Threads: {{ ansible_facts['processor_threads_per_core'] | default('N/A') }}"
+          - "CPU Model: {{ ansible_facts['processor'][2] | default(ansible_facts['processor'][0] | default('N/A')) }}"
+
+    - name: Display memory information
+      ansible.builtin.debug:
+        msg:
+          - "Total Memory: {{ ansible_facts['memtotal_mb'] }} MB ({{ (ansible_facts['memtotal_mb'] / 1024) | round(2) }} GB)"
+          - "Free Memory: {{ ansible_facts['memfree_mb'] }} MB"
+          - "Used Memory: {{ ansible_facts['memtotal_mb'] - ansible_facts['memfree_mb'] }} MB"
+
+    - name: Display disk information
+      ansible.builtin.debug:
+        msg:
+          - "Mount Point: {{ item.mount }}"
+          - "  Total: {{ (item.size_total / 1024 / 1024 / 1024) | round(2) }} GB"
+          - "  Available: {{ (item.size_available / 1024 / 1024 / 1024) | round(2) }} GB"
+          - "  Used: {{ ((item.size_total - item.size_available) / 1024 / 1024 / 1024) | round(2) }} GB"
+          - "  Filesystem: {{ item.fstype }}"
+      loop: "{{ ansible_facts['mounts'] | default([]) }}"
+      when: ansible_facts['mounts'] is defined and ansible_facts['mounts'] | length > 0
+
+    - name: Display network information
+      ansible.builtin.debug:
+        msg:
+          - "Default IPv4: {{ ansible_facts['default_ipv4'].address | default('N/A') }}"
+          - "Default IPv6: {{ ansible_facts['default_ipv6'].address | default('N/A') }}"
+
+    - name: Display uptime
+      ansible.builtin.debug:
+        msg: "Uptime: {{ (ansible_facts['uptime_seconds'] // 86400) | default(0) }} days, {{ ((ansible_facts['uptime_seconds'] % 86400) // 3600) | default(0) }} hours, {{ ((ansible_facts['uptime_seconds'] % 3600) // 60) | default(0) }} minutes"
+      when: ansible_facts['uptime_seconds'] is defined
+
+    - name: Gather additional package facts
+      ansible.builtin.package_facts:
+        manager: auto
+      ignore_errors: yes
+
+    - name: Display package count
+      ansible.builtin.debug:
+        msg: "Installed packages: {{ ansible_facts['packages'] | length if ansible_facts['packages'] is defined else 'N/A' }}"
