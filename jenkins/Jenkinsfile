@@ -1,0 +1,102 @@
+pipeline {
+    agent any
+
+    environment {
+        ANSIBLE_DIR = "${WORKSPACE}"
+        ANSIBLE_CONFIG = "${ANSIBLE_DIR}/ansible.cfg"
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    pip install --upgrade pip
+                    pip install ansible ansible-lint
+                    ansible-galaxy collection install -r requirements.yml
+                '''
+            }
+        }
+
+        stage('Lint Playbooks') {
+            steps {
+                sh 'ansible-lint playbooks/*.yml'
+            }
+        }
+
+        stage('Lint Roles') {
+            steps {
+                sh '''
+                    for role in roles/*/; do
+                        echo "Linting role: $role"
+                        ansible-lint "$role" || true
+                    done
+                '''
+            }
+        }
+
+        stage('Syntax Check') {
+            steps {
+                sh '''
+                    ansible-playbook --syntax-check playbooks/*.yml
+                '''
+            }
+        }
+
+        stage('Unit Test (Dry Run)') {
+            steps {
+                sh '''
+                    # Dry-run on development inventory
+                    ansible-playbook playbooks/playbook-local.yml --check -i inventories/dev/ || true
+                '''
+            }
+        }
+
+        stage('Deploy to Dev') {
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: 'Deploy to Development?', ok: 'Deploy'
+                sh '''
+                    ansible-playbook playbooks/playbook-local.yml -i inventories/dev/
+                '''
+            }
+        }
+
+        stage('Deploy to Prod') {
+            when {
+                tag "~^v\\d+\\.\\d+\\.\\d+$"
+            }
+            steps {
+                input message: 'Deploy to Production?', ok: 'Deploy'
+                sh '''
+                    ansible-playbook playbooks/playbook-local.yml -i inventories/prod/
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: '*.log', allowEmptyArchive: true
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}

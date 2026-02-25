@@ -14,10 +14,6 @@ jenkins_chart_name: jenkins
 
 # --- 3. Custom Value Overrides (See Jenkins chart documentation for full options) ---
 jenkins_helm_values: {}
-  # Example overrides:
-  # controller:
-  #   adminUser: admin
-  #   adminPassword: password
-  # persistence:
-  #   enabled: true
-  #   size: 8Gi
+
+# --- 4. Kubernetes Configuration ---
+jenkins_kubeconfig: /home/ansible/.kube/config

@@ -2,6 +2,12 @@
 
 This Ansible role deploys Jenkins using Helm.
 
+> **⚠️ Day 1 Installation Only**  
+> This role is designed for initial deployment only. It is **NOT** intended for ongoing maintenance or configuration updates. Running this role multiple times will:
+> - **Override the PVC (PersistentVolumeClaim)** - existing Jenkins data will be lost
+> - Uninstall and reinstall the Helm release
+> - Reset configuration
+
 ## Requirements
 
 - Ansible >= 2.9
@@ -20,10 +26,17 @@ This Ansible role deploys Jenkins using Helm.
 - `jenkins_repo_url`: Helm repo URL (default: https://charts.jenkins.io)
 - `jenkins_chart_name`: Chart name (default: jenkins)
 - `jenkins_helm_values`: Custom values for the chart (default: {})
+- `jenkins_kubeconfig`: Path to kubeconfig file (default: /home/ansible/.kube/config)
 
 ## Deployment
 
 This role executes on the Ansible controller (usually localhost) and deploys Jenkins to the Kubernetes cluster via Helm using the `kubernetes.core` collection. Ensure `kubectl` is configured to access your target cluster (e.g., via `KUBECONFIG` environment variable) before running the playbook.
+
+## Important Notes
+
+- **PVC Override**: The role uninstalls existing Helm release and deletes PVC before reinstalling. All Jenkins data is lost on re-run.
+- **JCasC**: Configuration as Code is supported via `jenkins_helm_values.controller.JCasC`
+- **Kubeconfig**: Ensure kubeconfig is available at `jenkins_kubeconfig` path on the target host
 
 ## Example Playbook
 
@@ -34,8 +47,21 @@ This role executes on the Ansible controller (usually localhost) and deploys Jen
     - role: jenkins-helm
       jenkins_helm_values:
         controller:
-          adminUser: admin
-          adminPassword: password
+          JCasC:
+            enabled: true
+            configScripts:
+              jenkins-config: |
+                jenkins:
+                  systemMessage: "Jenkins configured by Ansible"
+                  securityRealm:
+                    local:
+                      allowsSignup: false
+                      users:
+                        - id: "admin"
+                          password: "your-password"
+                  authorizationStrategy:
+                    loggedInUsersCanDoAnything:
+                      allowAnonymousRead: false
 ```
 
 ## License

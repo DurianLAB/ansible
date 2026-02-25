@@ -1,0 +1,6 @@
+---
+- name: Deploy GitHub Actions Runner
+  hosts: github-action
+  become: yes
+  roles:
+    - docker-install

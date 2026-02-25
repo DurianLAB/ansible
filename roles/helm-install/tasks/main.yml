@@ -20,3 +20,28 @@
   ansible.builtin.apt:
     name: helm
     state: present
+
+- name: Install kubernetes Python library
+  become: yes
+  ansible.builtin.pip:
+    name: kubernetes
+    state: present
+
+- name: Create .kube directory
+  become: yes
+  ansible.builtin.file:
+    path: "/home/ansible/.kube"
+    state: directory
+    mode: '0755'
+    owner: ansible
+    group: ansible
+
+- name: Copy kubeconfig for Helm
+  become: yes
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "/home/ansible/.kube/config"
+    remote_src: yes
+    mode: '0644'
+    owner: ansible
+    group: ansible
