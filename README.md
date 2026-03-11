@@ -24,3 +24,35 @@ Note: playbook-microk8s.yml does not use any roles.
 - Phase 1: Getting microk8s role working ( WIP )
 - Phase 2: Getting helm role installed ( DONE )
 - Phase 3: Initial install jenkins ( DONE )
+
+## Dynamic Inventories
+
+This project includes a dynamic inventory script that fetches host information from an LXC server.
+
+### Setup
+
+Configure the LXC server in `inventory_scripts/lxc_inventory.sh`:
+
+```bash
+LXC_HOST="192.168.1.206"
+SSH_USER="anpham"
+```
+
+Add your node names to the `DEV_NODES` and `PROD_NODES` arrays.
+
+### Testing
+
+List all hosts:
+```bash
+ansible-inventory -i inventory_scripts/lxc_inventory.sh --list
+```
+
+Ping all dev nodes:
+```bash
+ansible -i inventory_scripts/lxc_inventory.sh lxc_dev_cluster -m ping
+```
+
+Ping all prod nodes:
+```bash
+ansible -i inventory_scripts/lxc_inventory.sh lxc_prod_cluster -m ping
+```
